@@ -1,0 +1,138 @@
+<rdf:RDF 
+	xmlns:foaf="http://xmlns.com/foaf/0.1/" 
+	xmlns:owl="http://www.w3.org/2002/07/owl#" 
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+	xmlns:dcat="http://www.w3.org/ns/dcat#" 
+	xmlns:dct="http://purl.org/dc/terms/" 
+	xmlns:time="http://www.w3.org/2006/time#" 
+	xmlns:dc="http://purl.org/dc/elements/1.1/" 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema#" 
+	xmlns:tema="{{ theme_taxonomy }}">
+	<dcat:Catalog rdf:about="{{ site_url }}federador.rdf">
+		{% for locale in h.get_available_locales() -%}
+		<dct:title xml:lang="{{ locale.short_name }}">{{ catalog_title[locale.short_name] }}</dct:title>
+		{% endfor -%}
+		{% for locale in h.get_available_locales() -%}
+		<dct:description xml:lang="{{ locale.short_name }}">{{ catalog_desc[locale.short_name] }}</dct:description>
+		{% endfor -%}
+		<dct:publisher rdf:resource="{{ publisher }}"></dct:publisher>
+		<dct:identifier>{{ site_url }}federador.rdf</dct:identifier>
+		<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#date">{{ date_created }}</dct:issued>
+		<dct:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#date">{{ date_modified }}</dct:modified>
+		{% for locale in h.get_available_locales() -%}
+		<dc:language>{{ locale.short_name }}</dc:language>
+		{% endfor -%}
+		<dcat:themeTaxonomy rdf:resource="{{ theme_taxonomy }}"></dcat:themeTaxonomy>
+		<foaf:homepage rdf:resource="{{ site_url }}"></foaf:homepage>
+		<dct:license rdf:resource="{{ license_url }}"></dct:license>
+		{% for package in packages -%}
+		<dcat:dataset>
+			<dcat:Dataset rdf:about="{{ site_url }}dataset/{{ package.name }}">
+				{% for locale in h.get_available_locales() -%}
+					{% if package.title_translated[locale.short_name] -%}
+					<dct:title xml:lang="{{ locale.short_name }}">{{ package.title_translated[locale.short_name] }}</dct:title>
+					{%- endif %}
+				{% endfor -%}
+				{% for locale in h.get_available_locales() -%}
+					{% if package.notes_translated[locale.short_name] -%}
+					<dct:description xml:lang="{{ locale.short_name }}">{{ package.notes_translated[locale.short_name] }}</dct:description>
+					{%- endif %}
+				{% endfor -%}
+				{% if package.organization.tematica_nti -%}
+					<dcat:theme rdf:resource="http://datos.gob.es/kos/sector-publico/sector/{{ package.organization.tematica_nti }}"></dcat:theme>
+				{% elif package.organization.name -%}
+					<dcat:theme rdf:resource="http://datos.gob.es/kos/sector-publico/sector/{{ package.organization.name }}"></dcat:theme>
+				{% endif -%}
+				{% for tag in package.tags -%}
+					{% set safe_tag = _(tag.name).replace("'", " ") -%}
+					<dcat:keyword>{{ safe_tag }}</dcat:keyword>
+				{% endfor -%}
+				<dct:identifier>{{ site_url }}dataset/{{ package.name }}</dct:identifier>
+				<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#date">
+					{%- if package.fecha_publicacion -%}
+						{{ h.publish_date_isoformat(package.fecha_publicacion) }}
+					{%- else -%}
+						{{ package.metadata_created }}
+					{%- endif -%}
+				</dct:issued>
+				{% if package.frequency 
+					and not (package.frequency == 'PETICIO_ALCALDIA') 
+					and not (package.frequency == 'PETICIO_NEGOCI') 
+					and not (package.frequency == 'SERIE_INTERROMPUDA') 
+					and not (package.frequency == 'NOT_ESPECIFIED') 
+					and not (package.frequency == 'IMMEDIATA') -%}
+				<dct:accrualPeriodicity>
+					<dct:Frequency>
+						<rdfs:label>{{ _(package.frequency) }}</rdfs:label>
+						<rdf:value>
+							<time:DurationDescription>
+								<rdfs:label>{{ _(package.frequency) }}</rdfs:label>
+								{% if package.frequency == 'CINC_MINUTS' -%}
+									<time:minutes rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5</time:minutes>
+								{% elif package.frequency == 'TRENTA_MINUTS' -%}
+									<time:minutes rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">30</time:minutes>
+								{% elif package.frequency == 'UNA_HORA' -%}
+									<time:hours rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">1</time:hours>
+								{% elif package.frequency == 'DIARIA' -%}
+									<time:days rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">1</time:days>
+								{% elif package.frequency == 'SETMANAL' -%}
+									<time:weeks rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">1</time:weeks>
+								{% elif package.frequency == 'MENSUAL' -%}
+									<time:months rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">1</time:months>
+								{% elif package.frequency == 'BIMESTRAL' -%}
+									<time:months rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">2</time:months>
+								{% elif package.frequency == 'TRIMESTRAL' -%}
+									<time:months rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">3</time:months>
+								{% elif package.frequency == 'SEMESTRAL' -%}
+									<time:months rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">6</time:months>
+								{% elif package.frequency == 'ANUAL' -%}
+									<time:years rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">1</time:years>
+								{% elif package.frequency == 'BIENNAL' -%}
+									<time:years rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">2</time:years>
+								{% elif package.frequency == 'QUINQUENNAL' -%}
+									<time:years rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5</time:years>
+								{% elif package.frequency == 'DECENAL' -%}
+									<time:years rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">10</time:years>
+							{% endif -%}
+							</time:DurationDescription>
+						</rdf:value>
+					</dct:Frequency>
+				</dct:accrualPeriodicity>
+				{% endif -%}
+				{% for locale in h.get_available_locales() -%}
+				<dc:language>{{ locale.short_name }}</dc:language>
+				{% endfor -%}
+				<dct:publisher rdf:resource="{{ publisher }}"></dct:publisher>
+				<dct:license>{{ package.license_url }}{%- if 'creativecommons.org' in package.license_url -%}
+					deed.es_ES
+				{%- endif -%}</dct:license>
+				{%- if package.url_tornada -%}
+					{%- for locale in h.get_available_locales() -%}
+						{%- if package.url_tornada[locale.short_name] %}
+				<dct:references>{{ package.url_tornada[locale.short_name] }}</dct:references>
+						{%- endif -%}
+					{%- endfor -%}
+				{% endif %}
+				{% for resource in package.resources -%}
+				<dcat:distribution>
+					<dcat:Distribution>
+						<dct:identifier>{{ site_url }}dataset/{{ package.name }}/resource/{{ resource.id }}</dct:identifier>
+						{% for locale in h.get_available_locales() -%}
+							<dct:title xml:lang="{{ locale.short_name }}">{{ resource.name }}</dct:title>
+						{% endfor -%}
+						<dcat:accessURL rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">{{ resource.url }}</dcat:accessURL>
+						<dct:format>
+							<dct:IMT>
+								<rdf:value>{{ h.get_mimetype(resource) }}</rdf:value>
+								<rdfs:label>{{ resource.format }}</rdfs:label>
+							</dct:IMT>
+						</dct:format>
+					</dcat:Distribution>
+				</dcat:distribution>
+				{% endfor -%}
+			</dcat:Dataset>
+		</dcat:dataset>
+		{% endfor -%}
+	</dcat:Catalog>
+</rdf:RDF>
