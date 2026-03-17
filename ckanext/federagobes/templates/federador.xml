@@ -1,34 +1,25 @@
-<rdf:RDF 
-	xmlns:foaf="http://xmlns.com/foaf/0.1/" 
-	xmlns:owl="http://www.w3.org/2002/07/owl#" 
-	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" 
-	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
-	xmlns:dcat="http://www.w3.org/ns/dcat#" 
-	xmlns:dct="http://purl.org/dc/terms/" 
-	xmlns:time="http://www.w3.org/2006/time#" 
-	xmlns:dc="http://purl.org/dc/elements/1.1/" 
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema#" 
-	xmlns:tema="{{ theme_taxonomy }}">
-	<dcat:Catalog rdf:about="{{ site_url }}federador.rdf">
+<rdf:RDF xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dcat="http://www.w3.org/ns/dcat#" xmlns:dct="http://purl.org/dc/terms/" xmlns:time="http://www.w3.org/2006/time#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" xmlns:dcatap="http://data.europa.eu/r5r/" xmlns:tema="{{ theme_taxonomy }}" xmlns:vcard="http://www.w3.org/2006/vcard/ns#">
+    <dcat:Catalog rdf:about="{{ site_url }}federador.rdf">
 		{% for locale in h.get_available_locales() -%}
 		<dct:title xml:lang="{{ locale.short_name }}">{{ catalog_title[locale.short_name] }}</dct:title>
 		{% endfor -%}
 		{% for locale in h.get_available_locales() -%}
 		<dct:description xml:lang="{{ locale.short_name }}">{{ catalog_desc[locale.short_name] }}</dct:description>
 		{% endfor -%}
-		<dct:publisher rdf:resource="{{ publisher }}"></dct:publisher>
-		<dct:identifier>{{ site_url }}federador.rdf</dct:identifier>
-		<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#date">{{ date_created }}</dct:issued>
-		<dct:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#date">{{ date_modified }}</dct:modified>
-		{% for locale in h.get_available_locales() -%}
-		<dc:language>{{ locale.short_name }}</dc:language>
-		{% endfor -%}
-		<dcat:themeTaxonomy rdf:resource="{{ theme_taxonomy }}"></dcat:themeTaxonomy>
-		<foaf:homepage rdf:resource="{{ site_url }}"></foaf:homepage>
-		<dct:license rdf:resource="{{ license_url }}"></dct:license>
+		<dct:publisher rdf:resource="{{ publisher }}"/>
+        <dct:identifier>{{ site_url }}federador.rdf</dct:identifier>
+        <dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">{{ date_created }}Z</dct:issued>
+        <dct:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">{{ date_modified }}Z</dct:modified>
+        <dct:language rdf:resource="http://publications.europa.eu/resource/authority/language/CAT"/>
+        <dct:language rdf:resource="http://publications.europa.eu/resource/authority/language/ENG"/>
+        <dct:language rdf:resource="http://publications.europa.eu/resource/authority/language/SPA"/>
+        <dcat:themeTaxonomy rdf:resource="http://datos.gob.es/kos/sector-publico/sector"/>
+        <dct:spatial rdf:resource="http://publications.europa.eu/resource/authority/place/ESP_BCN"/>
+        <foaf:homepage rdf:resource="{{ site_url }}"/>
+        <dct:license rdf:resource="http://publications.europa.eu/resource/authority/licence/CC_BY_4_0"/>
 		{% for package in packages -%}
 		<dcat:dataset>
-			<dcat:Dataset rdf:about="{{ site_url }}dataset/{{ package.name }}">
+            <dcat:Dataset rdf:about="{{ site_url }}dataset/{{ package.name }}">
 				{% for locale in h.get_available_locales() -%}
 					{% if package.title_translated[locale.short_name] -%}
 					<dct:title xml:lang="{{ locale.short_name }}">{{ package.title_translated[locale.short_name] }}</dct:title>
@@ -40,20 +31,53 @@
 					{%- endif %}
 				{% endfor -%}
 				{% if package.organization.tematica_nti -%}
-					<dcat:theme rdf:resource="http://datos.gob.es/kos/sector-publico/sector/{{ package.organization.tematica_nti }}"></dcat:theme>
+					<dcat:theme rdf:resource="http://datos.gob.es/kos/sector-publico/sector/{{ package.organization.tematica_nti }}"/>
 				{% elif package.organization.name -%}
-					<dcat:theme rdf:resource="http://datos.gob.es/kos/sector-publico/sector/{{ package.organization.name }}"></dcat:theme>
+					<dcat:theme rdf:resource="http://datos.gob.es/kos/sector-publico/sector/{{ package.organization.name }}"/>
 				{% endif -%}
+                {% if (package.organization.name == 'transport' ) -%}
+                    <dcat:theme rdf:resource="http://publications.europa.eu/resource/authority/data-theme/TRAN"/>
+                {% elif (package.organization.name == 'medi-ambient' ) -%}
+                    <dcat:theme rdf:resource="http://publications.europa.eu/resource/authority/data-theme/ENVI"/>
+                {% elif (package.organization.name == 'comerc' ) -%}
+                    <dcat:theme rdf:resource="http://publications.europa.eu/resource/authority/data-theme/ECON"/>
+                {% elif (package.organization.name == 'ocupacio' ) -%}
+                    <dcat:theme rdf:resource="http://publications.europa.eu/resource/authority/data-theme/ECON"/>
+                {% elif (package.organization.name == 'sector-public' ) -%}
+                    <dcat:theme rdf:resource="http://publications.europa.eu/resource/authority/data-theme/GOVE"/>
+                {% elif (package.organization.name == 'contractacio' ) -%}
+                    <dcat:theme rdf:resource="http://publications.europa.eu/resource/authority/data-theme/GOVE"/>
+                {% elif (package.organization.name == 'recursos-humans' ) -%}
+                    <dcat:theme rdf:resource="http://publications.europa.eu/resource/authority/data-theme/GOVE"/>
+                {% endif -%}
+                {% if package.dades_alt_valor and package.dades_alt_valor != 'No' -%}
+                    <dcatap:applicableLegislation rdf:resource="http://data.europa.eu/eli/reg_impl/2023/138/oj"/>
+                    {% if (package.dades_alt_valor == 'Geoespacial' ) -%}
+                        <dcatap:hvdCategory rdf:resource="http://data.europa.eu/bna/c_ac64a52d"/>
+                    {% elif (package.dades_alt_valor == 'Observacio_de_la_Terra_i_medi_ambient' ) -%}
+                        <dcatap:hvdCategory rdf:resource="http://data.europa.eu/bna/c_dd313021"/>
+                    {% elif (package.dades_alt_valor == 'Meteorologia' ) -%}
+                        <dcatap:hvdCategory rdf:resource="http://data.europa.eu/bna/c_164e0bf5"/>
+                    {% elif (package.dades_alt_valor == 'Estadistica' ) -%}
+                        <dcatap:hvdCategory rdf:resource="http://data.europa.eu/bna/c_e1da4e07"/>
+                    {% elif (package.dades_alt_valor == 'Societats_i_propietat_de_societats' ) -%}
+                        <dcatap:hvdCategory rdf:resource="http://data.europa.eu/bna/c_a9135398"/>
+                    {% else -%}
+                        <dcatap:hvdCategory rdf:resource="http://data.europa.eu/bna/c_b79e35eb"/>
+                    {% endif -%}
+                {% endif -%}
 				{% for tag in package.tags -%}
 					{% set safe_tag = _(tag.name).replace("'", " ") -%}
-					<dcat:keyword>{{ safe_tag }}</dcat:keyword>
+					<dcat:keyword xml:lang="en">{{ safe_tag }}</dcat:keyword>
 				{% endfor -%}
-				<dct:identifier>{{ site_url }}dataset/{{ package.name }}</dct:identifier>
-				<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#date">
+                <dcatap:applicableLegislation rdf:resource="https://www.boe.es/eli/es/rd/2023/08/22/729"/>
+                <dct:spatial rdf:resource="http://publications.europa.eu/resource/authority/place/ESP_BCN"/>
+                <dct:identifier>{{ site_url }}dataset/{{ package.name }}</dct:identifier>
+                <dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">
 					{%- if package.fecha_publicacion -%}
-						{{ h.publish_date_isoformat(package.fecha_publicacion) }}
+						{{ h.publish_date_isoformat(package.fecha_publicacion) }}Z
 					{%- else -%}
-						{{ package.metadata_created }}
+						{{ package.metadata_created }}Z
 					{%- endif -%}
 				</dct:issued>
 				{% if package.frequency 
@@ -63,11 +87,11 @@
 					and not (package.frequency == 'NOT_ESPECIFIED') 
 					and not (package.frequency == 'IMMEDIATA') -%}
 				<dct:accrualPeriodicity>
-					<dct:Frequency>
-						<rdfs:label>{{ _(package.frequency) }}</rdfs:label>
-						<rdf:value>
-							<time:DurationDescription>
-								<rdfs:label>{{ _(package.frequency) }}</rdfs:label>
+                    <dct:Frequency>
+                        <rdfs:label>{{ _(package.frequency) }}</rdfs:label>
+                        <rdf:value>
+                            <time:DurationDescription>
+                                <rdfs:label>{{ _(package.frequency) }}</rdfs:label>
 								{% if package.frequency == 'CINC_MINUTS' -%}
 									<time:minutes rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">5</time:minutes>
 								{% elif package.frequency == 'TRENTA_MINUTS' -%}
@@ -96,43 +120,60 @@
 									<time:years rdf:datatype="http://www.w3.org/2001/XMLSchema#decimal">10</time:years>
 							{% endif -%}
 							</time:DurationDescription>
-						</rdf:value>
-					</dct:Frequency>
-				</dct:accrualPeriodicity>
+                        </rdf:value>
+                    </dct:Frequency>
+                </dct:accrualPeriodicity>
 				{% endif -%}
-				{% for locale in h.get_available_locales() -%}
-				<dc:language>{{ locale.short_name }}</dc:language>
-				{% endfor -%}
-				<dct:publisher rdf:resource="{{ publisher }}"></dct:publisher>
-				<dct:license>{{ package.license_url }}{%- if 'creativecommons.org' in package.license_url -%}
-					deed.es_ES
-				{%- endif -%}</dct:license>
-				{%- if package.url_tornada -%}
-					{%- for locale in h.get_available_locales() -%}
-						{%- if package.url_tornada[locale.short_name] %}
-				<dct:references>{{ package.url_tornada[locale.short_name] }}</dct:references>
-						{%- endif -%}
-					{%- endfor -%}
-				{% endif %}
+				<dct:language rdf:resource="http://publications.europa.eu/resource/authority/language/CAT"/>
+                <dct:language rdf:resource="http://publications.europa.eu/resource/authority/language/ENG"/>
+                <dct:language rdf:resource="http://publications.europa.eu/resource/authority/language/SPA"/>
+                <dct:publisher rdf:resource="{{ publisher }}"/>
+                <dct:license rdf:resource="http://publications.europa.eu/resource/authority/licence/CC_BY_4_0"/>
+                {% for locale in h.get_available_locales() -%}
+                <dct:references>{{ site_url }}{{ locale.short_name }}/dataset/{{ package.name }}</dct:references>
+                {% endfor -%}
+                <dcat:contactPoint>
+                    <vcard:Organization>
+                        <vcard:organization-name xml:lang="es">{%- if package.fuente -%}{{ package.fuente }}{% else -%}Ajuntament de Barcelona{% endif -%}</vcard:organization-name>
+                        {%- if package.department -%}<vcard:fn xml:lang="es">{{ package.department }}</vcard:fn>{% endif -%}
+                        <vcard:hasUID rdf:resource="http://datos.gob.es/recurso/sector-publico/org/Organismo/L01080193"/>
+                        {%- if package.maintainer_email -%}<vcard:hasEmail rdf:resource="mailto:{{ package.maintainer_email }}"/>{% endif -%}
+                        {%- if package.maintainer_tel -%}<vcard:hasTelephone rdf:resource="tel:+34{{ package.maintainer_tel }}"/>{% endif -%}
+                        <vcard:hasURL rdf:resource="{{ site_url }}/es/dataset/{{ package.name }}"/>
+                    </vcard:Organization>
+                </dcat:contactPoint>
+                <dct:temporal>
+                    <dct:PeriodOfTime>
+                        <dcat:startDate rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">{%- if package.created -%}{{ package.created }}{% else -%}2016-01-01T00:00:00Z{% endif -%}</dcat:startDate>
+                        <dcat:endDate rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">{%- if package.updated -%}{{ package.updated }}{% else -%}2025-11-01T00:00:00Z{% endif -%}</dcat:endDate>
+                    </dct:PeriodOfTime>
+                </dct:temporal>
 				{% for resource in package.resources -%}
 				<dcat:distribution>
-					<dcat:Distribution>
-						<dct:identifier>{{ site_url }}dataset/{{ package.name }}/resource/{{ resource.id }}</dct:identifier>
+                    <dcat:Distribution>
+                        <dct:identifier>{{ site_url }}dataset/{{ package.name }}/resource/{{ resource.id }}</dct:identifier>
 						{% for locale in h.get_available_locales() -%}
 							<dct:title xml:lang="{{ locale.short_name }}">{{ resource.name }}</dct:title>
 						{% endfor -%}
-						<dcat:accessURL rdf:datatype="http://www.w3.org/2001/XMLSchema#anyURI">{{ resource.url }}</dcat:accessURL>
-						<dct:format>
-							<dct:IMT>
-								<rdf:value>{{ h.get_mimetype(resource) }}</rdf:value>
-								<rdfs:label>{{ resource.format }}</rdfs:label>
-							</dct:IMT>
-						</dct:format>
-					</dcat:Distribution>
-				</dcat:distribution>
+                        {% for locale in h.get_available_locales() -%}
+                            <dct:description xml:lang="{{ locale.short_name }}">{{ catalog_desc[locale.short_name] }}</dct:description>
+                        {% endfor -%}
+						<dcatap:availability rdf:resource="http://publications.europa.eu/resource/authority/planned-availability/STABLE"/>
+                        <dcatap:applicableLegislation rdf:resource="http://data.europa.eu/eli/dir/2007/2/2019-06-26"/>
+                        {%- if resource.size -%}<dcat:byteSize rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">{{ resource.size }}</dcat:byteSize>{% endif -%}
+                        <dct:license rdf:resource="http://publications.europa.eu/resource/authority/licence/CC_BY_4_0"/>
+                        <dcat:accessURL rdf:resource="{{ resource.url }}"/>
+                        <dct:format>
+                            <dct:IMT>
+                                <rdf:value>{{ h.get_mimetype(resource) }}</rdf:value>
+                                <rdfs:label>{{ resource.format }}</rdfs:label>
+                            </dct:IMT>
+                        </dct:format>
+                    </dcat:Distribution>
+                </dcat:distribution>
 				{% endfor -%}
 			</dcat:Dataset>
-		</dcat:dataset>
+        </dcat:dataset>
 		{% endfor -%}
 	</dcat:Catalog>
 </rdf:RDF>
