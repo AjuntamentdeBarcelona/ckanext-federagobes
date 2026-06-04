@@ -30,6 +30,7 @@
 					<dct:description xml:lang="{{ locale.short_name }}">{{ package.notes_translated[locale.short_name] }}</dct:description>
 					{%- endif %}
 				{% endfor -%}
+                <dct:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">{{ package.metadata_modified }}Z</dct:modified>
 				{% if package.organization.tematica_nti -%}
 					<dcat:theme rdf:resource="http://datos.gob.es/kos/sector-publico/sector/{{ package.organization.tematica_nti }}"/>
 				{% elif package.organization.name -%}
@@ -128,6 +129,7 @@
                 <dct:language rdf:resource="http://publications.europa.eu/resource/authority/language/ENG"/>
                 <dct:language rdf:resource="http://publications.europa.eu/resource/authority/language/SPA"/>
                 <dct:publisher rdf:resource="{{ publisher }}"/>
+                <dct:accessRights rdf:resource="http://publications.europa.eu/resource/authority/access-right/PUBLIC"/>
                 <dct:license rdf:resource="http://publications.europa.eu/resource/authority/licence/CC_BY_4_0"/>
                 {% for locale in h.get_available_locales() -%}
                 <dct:references>{{ site_url }}{{ locale.short_name }}/dataset/{{ package.name }}</dct:references>
@@ -163,12 +165,19 @@
                         {%- if resource.size -%}<dcat:byteSize rdf:datatype="http://www.w3.org/2001/XMLSchema#nonNegativeInteger">{{ resource.size }}</dcat:byteSize>{% endif -%}
                         <dct:license rdf:resource="http://publications.europa.eu/resource/authority/licence/CC_BY_4_0"/>
                         <dcat:accessURL rdf:resource="{{ resource.url }}"/>
-                        <dct:format>
-                            <dct:IMT>
-                                <rdf:value>{{ h.get_mimetype(resource) }}</rdf:value>
-                                <rdfs:label>{{ resource.format }}</rdfs:label>
-                            </dct:IMT>
-                        </dct:format>
+                        <dcat:downloadURL rdf:resource="{{ resource.url }}"/>
+                        <dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">{{ resource.created }}Z</dct:issued>
+                        <dct:modified rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">
+                            {%- if resource.last_modified -%}
+                                {{ resource.last_modified }}Z
+                            {%- else -%}
+                                {{ resource.created }}Z
+                            {%- endif -%}
+                        </dct:modified>
+                        <dct:license rdf:resource="http://publications.europa.eu/resource/authority/licence/CC_BY_4_0"/>
+                        <dct:rights rdf:resource="http://publications.europa.eu/resource/authority/access-right/PUBLIC"/>
+                        <dcat:mediaType rdf:resource="https://www.iana.org/assignments/media-types/{{ h.get_mimetype(resource) }}"/>
+                        <dct:format rdf:resource="http://publications.europa.eu/resource/authority/file-type/{{ resource.format }}"/>
                     </dcat:Distribution>
                 </dcat:distribution>
 				{% endfor -%}
